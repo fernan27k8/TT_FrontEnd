@@ -5,8 +5,14 @@ import { useNavigate } from 'react-router-dom';
 function Login() {
   const navigate = useNavigate();
 
+  // Navegar a la página de registro
   const handleRegisterClick = () => {
     navigate('/register');
+  };
+
+  // Navegar a la página de recuperación de contraseña
+  const handlePasswordRecoveryClick = () => {
+    navigate('/password-recovery');
   };
 
   return (
@@ -18,7 +24,7 @@ function Login() {
         <button className="login-button">Iniciar Sesión</button>
         <div className="button-group">
           <button className="link-button" onClick={handleRegisterClick}>Registrarse</button>
-          <button className="link-button">Recuperar Contraseña</button>
+          <button className="link-button" onClick={handlePasswordRecoveryClick}>Recuperar Contraseña</button>
         </div>
       </div>
     </div>
@@ -26,4 +32,5 @@ function Login() {
 }
 
 export default Login;
+
 
