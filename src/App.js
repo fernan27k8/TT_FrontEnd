@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './Login';
 import Register from './Register';
 import PasswordRecovery from './PasswordRecovery';
+import ResetPassword from './ResetPassword';
+import Dashboard from './Dashboard'; // Página temporal'
 
 function App() {
   return (
@@ -19,6 +21,11 @@ function App() {
 
         {/* Redirigir a /login si la ruta no coincide */}
         <Route path="/" element={<Login />} />
+        
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
+        
+        {/* Página después de inicio de sesión */}
+        <Route path="/dashboard" element={<Dashboard />} /> 
       </Routes>
     </Router>
   );

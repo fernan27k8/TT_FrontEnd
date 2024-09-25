@@ -1,81 +1,128 @@
+/* Añadimos estilos para los labels */
+.login-form label {
+  display: block; /* Hace que el label ocupe todo el ancho disponible */
+  text-align: left; /* Alineamos el texto del label a la izquierda */
+  margin-bottom: 5px; /* Añadimos un pequeño margen inferior */
+  font-weight: bold; /* Opción para hacer los labels en negrita */
+  color: #ffffff; /* Cambiamos el color del label para que sea más visible */
+}
+
+/* Estilos actuales */
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: url('https://www.primerahora.com/resizer/CwODjM3f2ajT2DIK70oRZMrwwwA=/arc-anglerfish-arc2-prod-gfrmedia/public/F5APC23MRNDAJCJX7RLF3SJJSI.jpg') no-repeat center center fixed;
-    background-size: cover;
-  }
-  
-  .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    border-radius: 15px;
-    background-color: rgba(0, 0, 0, 0.6);
-  }
-  
-  .login-form {
-    background-color: rgba(255, 255, 255, 0.7); /* Fondo blanco semi-transparente */
-    padding: 40px;
-    border-radius: 15px; /* Eliminar las esquinas puntiagudas */
-    text-align: center;
-    width: 300px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .login-form h2 {
-    margin-bottom: 20px;
-  }
-  
-  .login-form input {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 15px;
-  }
-  
-  .login-button {
-    background-color: green;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 10px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .login-button:hover {
-    background-color: #45a049; /* Se ilumina cuando el apuntador pasa encima */
-  }
-  
-  .button-group {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-  }
-  
-  .link-button {
-    background-color: transparent;
-    color: #333;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: underline;
-    margin-right: 10px;
-    width: 50%;
-    text-align: center;
-  }
-  
-  .link-button:hover {
-    color: #007BFF; /* Cambiar de color al pasar sobre él */
-  }
+  margin: 0;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url('https://www.primerahora.com/resizer/CwODjM3f2ajT2DIK70oRZMrwwwA=/arc-anglerfish-arc2-prod-gfrmedia/public/F5APC23MRNDAJCJX7RLF3SJJSI.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.login-form {
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 40px;
+  border-radius: 15px;
+  text-align: center;
+  width: 350px; /* Ajustamos el tamaño del cuadro */
+  max-width: 90%;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-form h2 {
+  margin-bottom: 20px;
+}
+
+.login-form input {
+  display: block;
+  width: calc(100% - 20px); /* Aseguramos que los inputs ocupen todo el ancho disponible */
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  margin-left: auto;
+  margin-right: auto; /* Centramos los inputs */
+}
+
+.password-input-container {
+  position: relative;
+  width: calc(100% - 20px); /* Igualamos el ancho al de los otros inputs */
+  margin-left: auto;
+  margin-right: 30px; /* Centramos el contenedor */
+}
+
+.password-input-container input {
+  width: 100%; /* Los inputs dentro del contenedor ocuparán el 100% del ancho asignado */
+  padding-right: 10px; /* Espacio para el icono del ojo */
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  color: #007bff;
+}
+
+.login-button {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  transition: background-color 0.3s ease;
+  width: calc(100% - 20px); /* Aseguramos que el botón también esté alineado */
+  margin-left: auto;
+  margin-right: auto; /* Centramos el botón */
+}
+
+.login-button:hover {
+  background-color: #45a049; /* Se ilumina cuando el apuntador pasa encima */
+}
+
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  width: calc(100% - 20px); /* Aseguramos que el grupo de botones esté alineado */
+  margin-left: auto;
+  margin-right: auto; /* Centramos los botones */
+}
+
+.link-button {
+  background-color: transparent;
+  color: #333;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+  width: 50%;
+  text-align: center;
+}
+
+.link-button:hover {
+  color: #007BFF; /* Cambiar de color al pasar sobre él */
+}
+
+
+
+
   
