@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Login from './Login';
-import Register from './Register';
-import PasswordRecovery from './PasswordRecovery';
-import ResetPassword from './ResetPassword';
-import Dashboard from './Dashboard'; // Página temporal'
+import Login from './components/Login';
+import Register from './components/Register';
+import PasswordRecovery from './components/PasswordRecovery';
+import ResetPassword from './components/ResetPassword';
+import Dashboard from './pages/Dashboard'; // Página temporal'
 
 function App() {
   return (

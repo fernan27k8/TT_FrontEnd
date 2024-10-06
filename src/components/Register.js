@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Login.css'; // Puedes usar el mismo CSS de Login para mantener el diseño consistente
+import '../styles/Login.css'; 
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
