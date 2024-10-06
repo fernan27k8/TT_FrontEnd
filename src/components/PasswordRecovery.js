@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Login.css'; // Mantener el mismo CSS de Login para diseño consistente
+import '../styles/Login.css'; 
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'; // Para realizar la solicitud al backend
 
