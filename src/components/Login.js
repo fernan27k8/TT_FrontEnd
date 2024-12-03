@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/Login.css';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios'; // Importar Axios
@@ -12,16 +12,16 @@ function Login() {
     password: ''
   });
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const history = useHistory();
 
   // Navegar a la página de registro
   const handleRegisterClick = () => {
-    navigate('/register');
+    history.push('/register');
   };
 
   // Navegar a la página de recuperación de contraseña
   const handlePasswordRecoveryClick = () => {
-    navigate('/password-recovery');
+    history.push('/password-recovery');
   };
 
   const togglePasswordVisibility = () => {
@@ -44,12 +44,13 @@ function Login() {
       const response = await axios.post('http://localhost:5000/api/auth/login', {
         email,
         password
-      });
+      },
+      {withCredentials: true});
 
       if (response.status === 200) {
         console.log('Inicio de sesión exitoso', response.data);
         // Redirigir a la página de dashboard después de inicio de sesión exitoso
-        navigate('/dashboard');
+        history.push('/consult');
       }
     } catch (error) {
       if (error.response) {

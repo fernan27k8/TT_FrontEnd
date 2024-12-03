@@ -3,15 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@fortawesome/free-solid-svg-icons": "^6.6.0",
-    "@fortawesome/react-fontawesome": "^0.2.2",
+    "@fortawesome/free-solid-svg-icons": "^5.15.3",
+    "@fortawesome/react-fontawesome": "^0.1.14",
+    "assert": "^2.1.0",
     "axios": "^1.7.7",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2",
+    "kepler.gl": "^2.5.5",
+    "querystring-es3": "^0.2.1",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-palm": "^3.2.2",
+    "react-redux": "^7.2.0",
+    "react-router-dom": "^5.1.0",
+    "react-router-redux": "^4.0.8",
     "react-scripts": "^5.0.1",
-
-    "eslint-config-react-app": "^7.0.1"
+    "redux": "^4.0.5",
+    "styled-components": "^5.3.6",
+    "swr": "^0.1.18",
+    "url": "^0.11.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -36,5 +44,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "react-app-rewired": "^2.2.1"
   }
 }

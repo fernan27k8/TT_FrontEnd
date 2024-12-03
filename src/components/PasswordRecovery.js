@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import '../styles/Login.css'; 
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import axios from 'axios'; // Para realizar la solicitud al backend
 
 function PasswordRecovery() {
-  const navigate = useNavigate();
+  const history = useHistory();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState(''); // Mensaje de éxito o error
   const [error, setError] = useState('');
 
   const handleLoginClick = () => {
-    navigate('/');
+    history.push('/');
   };
 
   const handleSubmit = async (e) => {

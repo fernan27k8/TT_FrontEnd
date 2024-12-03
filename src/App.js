@@ -1,36 +1,29 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React from "react";
+import { Route, Switch, BrowserRouter } from 'react-router-dom';  // Asegúrate de importar BrowserRouter
 import Login from './components/Login';
 import Register from './components/Register';
 import PasswordRecovery from './components/PasswordRecovery';
 import ResetPassword from './components/ResetPassword';
-import Dashboard from './pages/Dashboard'; // Página temporal'
+import Dashboard from './pages/Dashboard';
+import Consult from "./components/Consult";
+import VerifyEmail from "./components/verifyEmail";
 
-function App() {
+const App = () => {
   return (
-    <Router>
-      <Routes>
-        {/* Ruta para la página de inicio de sesión */}
-        <Route path="/login" element={<Login />} />
-
-        {/* Ruta para la página de registro */}
-        <Route path="/register" element={<Register />} />
-
-        {/* Ruta para la página de recuperacion de contraseñá */}
-        <Route path="/password-recovery" element={<PasswordRecovery />} />
-
-        {/* Redirigir a /login si la ruta no coincide */}
-        <Route path="/" element={<Login />} />
-        
-        <Route path="/reset-password/:token" element={<ResetPassword />} />
-        
-        {/* Página después de inicio de sesión */}
-        <Route path="/dashboard" element={<Dashboard />} /> 
-      </Routes>
-    </Router>
+    <BrowserRouter> {}
+      <Switch>
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
+        <Route path="/verify" component={VerifyEmail} />
+        <Route path="/password-recovery" component={PasswordRecovery} />
+        <Route exact path="/" component={Login} />
+        <Route path="/reset-password/:token" component={ResetPassword} />
+        <Route path="/consult" component={Consult} />
+        <Route path="/dashboard" component={Dashboard} />
+      </Switch>
+    </BrowserRouter>
   );
 }
 
 export default App;
-
 
