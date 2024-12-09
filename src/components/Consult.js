@@ -1,24 +1,62 @@
+//Consult.js
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
 import "../styles/Consult.css";
+import Switch from "react-switch";
+
 
 function Consult() {
   const history = useHistory();
-
+  const [isApiOne, setIsApiOne] = useState(true);
   const [formData, setFormData] = useState({
     startPoint: "", // Inicialmente vacío
     endPoint: "", // Inicialmente vacío
-    placeOfInterest: "",
+    placeOfInterest: [],
   });
 
 
   const [loading, setLoading] = useState(false); // Para indicar si está cargando
   const [error, setError] = useState(null); // Para mostrar errores, si los hay
 
-  const handleChange = (e) => {
+  const handleToggle = () => {
+    setIsApiOne(!isApiOne); // Cambia entre las dos APIs
+  };
+
+  const handleChangeDate = (event) => {
+    const { name, value } = event.target; // Captura el nombre y el valor del campo
+  
+    // Crear un objeto Date a partir del valor seleccionado
+    const localDate = new Date(value);
+  
+    // Convertir al formato ISO 8601 sin zona horaria
+    const isoDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16); // Obtener hasta minutos (YYYY-MM-DDTHH:mm)
+  
+    // Actualizar el estado
     setFormData({
       ...formData,
-      [e.target.name]: e.target.type === 'datetime-local' ? e.target.valueAsDate : e.target.value,
+      [name]: isoDate, // Guardar el valor formateado en el estado
+    });
+  };
+  
+  
+  const handleChange = (e) => {
+    const { name, options } = e.target;
+    const selectedOptions = Array.from(options)
+      .filter(option => option.selected)
+      .map(option => option.value);
+
+    setFormData({
+      ...formData,
+      [name]: selectedOptions,
+    });
+  };
+
+  const handleRemovePlace = (place) => {
+    setFormData({
+      ...formData,
+      placeOfInterest: formData.placeOfInterest.filter(p => p !== place),
     });
   };
 
@@ -28,37 +66,72 @@ function Consult() {
     setError(null); // Reinicia cualquier error anterior
 
     try {
+      setLoading(true);
+      const endpoint = isApiOne ? "http://34.172.62.81:5000/datos" : "http://34.172.62.81:5000/stay_points"; // Seleccionar API basado en el interruptor
+
       // Enviar datos a la API
-      const response = await fetch("http://tu-api.com/endpoint", {
+      const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          startPoint: formData.startPoint,
-          endPoint: formData.endPoint,
-          placeOfInterest: formData.placeOfInterest,
+          Lugares: formData.placeOfInterest,
+          archivo: false,
+          start_time: formData.startPoint,
+          end_time: formData.endPoint,
         }),
       });
 
+      const responseData = await response.json();
+
       if (!response.ok) {
-        throw new Error(`Error en la API: ${response.status}`);
+        throw new Error(`Error en la API: ${response.status} - ${responseData.error || 'Sin mensaje de error'}`);
       }
 
-      // Obtener datos GeoJSON de la respuesta
-      const geojson = await response.json();
+      const { task_id } = responseData;
+      console.log("task_id recibido:", task_id);
 
-      // Almacena el GeoJSON en el estado o redirige al Dashboard con los datos
+      // Verificar el estado de la tarea usando el task_id
+      let taskResult = null;
+      while (!taskResult) {
+        const statusResponse = await fetch(`http://34.172.62.81:5000/results/${task_id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        const statusData = await statusResponse.json();
+
+        if (!statusResponse.ok) {
+          throw new Error(`Error en la API (GET /results): ${statusResponse.status} - ${statusData.error || 'Sin mensaje de error'}`);
+        }
+
+        console.log("Estado de la tarea:", statusData);
+
+        if (statusData.state === "SUCCESS") {
+          taskResult = statusData.result; // Obtener el resultado
+        } else if (statusData.state === "FAILURE") {
+          throw new Error(`Error en el procesamiento: ${statusData.status}`);
+        } else {
+          // Si el estado es PENDING, esperar unos segundos antes de volver a consultar
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+      }
+
+      // Redirigir con el resultado al dashboard
       history.push({
         pathname: "/dashboard",
-        state: { geojson }, // Pasa el GeoJSON como estado a la ruta
+        state: { geojson: taskResult }, // Pasa el resultado como estado a la ruta
       });
+
     } catch (err) {
       setError(err.message); // Muestra el error
     } finally {
       setLoading(false); // Detiene indicador de carga
     }
-  };
+  };   
 
   const handleLogout = () => {
     history.push("/");
@@ -86,13 +159,30 @@ function Consult() {
         </button>
         <h2>Consulta</h2>
         <form onSubmit={handleSubmit}>
+        <div>
+            <h3>Selecciona el Endpoint</h3>
+            <label >
+              <Switch
+                onChange={handleToggle}
+                checked={isApiOne}
+                uncheckedIcon={false}
+                checkedIcon={false}
+              />
+            </label>
+            {/* Texto informativo que cambia dinámicamente */}
+            <p style={{ fontSize: "18px", marginTop: "10px" }}>
+              {isApiOne
+                ? "Endpoint 1 está activa. Esta consulta puede determinar las trayectorias que pasaron por un lugar de interes."
+                : "Endpoint 2 está activa. Esta consulta obtiene las trayectorias que tuvieron paradas en un tiempo mayor a 10 en un radio de 100 metros del lugare de interes."}
+            </p>
+          </div>
           <label htmlFor="startPoint">Hora Inicial</label>
           <input
             id="startPoint"
             name="startPoint"
             type="datetime-local"
             value={formData.startPoint} // Muestra la fecha/hora del estado
-            onChange={handleChange}
+            onChange={handleChangeDate}
             className="input-field"
             min="2020-01-01T00:00"
             max="2020-01-03T23:59"
@@ -104,7 +194,7 @@ function Consult() {
             name="endPoint"
             type="datetime-local"
             value={formData.endPoint} // Muestra la fecha/hora del estado
-            onChange={handleChange}
+            onChange={handleChangeDate}
             className="input-field"
             min="2020-01-01T00:00"
             max="2020-01-03T23:59"
@@ -114,11 +204,12 @@ function Consult() {
           <select
             id="placeOfInterest"
             name="placeOfInterest"
+            multiple
             value={formData.placeOfInterest}
             onChange={handleChange}
             className="input-field"
           >
-            <option value="">Seleccione un lugar</option>
+            <option value="">Seleccione uno lugar o varios lugares</option>
             <optgroup label="Atizapán">
                 <option>Museo Hacienda de Santa Monica</option>
                 <option>Mundo E</option>
@@ -593,11 +684,182 @@ function Consult() {
                 <option>imss umf 79</option>
                 <option>imss umf 95</option>
             </optgroup>
+            <optgroup label="PRUEBAS">
+            <option>Secretaría de Salud</option>
+                <option>Secretaría de Desarrollo Agrario</option>
+                <option>Secretaría de Desarrollo Social</option>
+                <option>Secretaría de Desarrollo Urbano y Vivienda</option>
+                <option>Secretaría de Economía</option>
+                <option>Secretaría de Economía 2</option>
+                <option>Secretaría de Economía 3</option>
+                <option>INEA</option>
+                <option>Consulado de Rusia</option>
+                <option>Embajada Rusa</option>
+                <option>Embajada de los Estados Unidos</option>
+                <option>Secretaría de Energía</option>
+                <option>Secretaría de Medio Ambiente y Recursos Naturales</option>
+                <option>Secretaría de Agricultura y Desarrollo Rural</option>
+                <option>Alcaldía Benito Juárez</option>
+                <option>PGJDF Benito Juárez</option>
+                <option>Secretaría de Obras y Servicios</option>
+                <option>Secretaría de la Función Pública</option>
+                <option>Secretaría de Turismo</option>
+                <option>Fiscalía General de la República</option>
+                <option>Planta de Tratamiento de Aguas Residuales</option>
+                <option>Alcaldía Miguel Hidalgo</option>
+                <option>Comisión Nacional de Protección y Defensa de Usuarios de Servicios Financieros</option>
+                <option>CONEVAL</option>
+                <option>Instituto Federal de Telecomunicaciones</option>
+                <option>Comisión Nacional de Hidrocarburos</option>
+                <option>Comisión Nacional de Seguridad Nuclear</option>
+                <option>Comisión Nacional de los Derechos Humanos</option>
+                <option>Auditoría Superior de la Federación</option>
+                <option>Fiscalía General de la República</option>
+                <option>Secretaría de Seguridad Ciudadana de la Ciudad de México</option>
+                <option>Bolsa Mexicana de Valores</option>
+                <option>Embajada de Japón</option>
+                <option>Aculco</option>
+                <option>4.7082E+11</option>
+                <option>Almoloya de Alquisiras</option>
+                <option>01941 18.8719847202225</option>
+                <option>Almoloya de Juárez</option>
+                <option>8.4736E+11</option>
+                <option>Apaxco</option>
+                <option>Capulhuac</option>
+                <option>Cuautitlán</option>
+                <option>1637019704578 19.7458988900365</option>
+                <option>Ecatzingo</option>
+                <option>Isidro Fabela</option>
+                <option>99.3759359393708 19.5795492296276</option>
+                <option>Ixtapan del Oro</option>
+                <option>Jaltenco</option>
+                <option>Jilotzingo</option>
+                <option>3</option>
+                <option>Joquicingo</option>
+                <option>Malinalco</option>
+                <option>9.4301685407862 18.8718525617099</option>
+                <option>Ocoyoacac</option>
+                <option>Ocuilan</option>
+                <option>891351 18.9997671699094</option>
+                <option>Ozumba</option>
+                <option>98.8396008496674 18.9780290201963</option>
+                <option>San Antonio la Isla</option>
+                <option>San Simón de Guerrero</option>
+                <option>Tecámac</option>
+                <option>7.12262E+11</option>
+                <option>Tultitlán</option>
+                <option>19.68749245</option>
+                <option>Zinacantepec</option>
+                <option>5</option>
+                <option>Zumpahuacán</option>
+                <option>4</option>
+                <option>Zumpango</option>
+                <option>9668896535</option>
+                <option>Valle de Bravo</option>
+                <option>76714169</option>
+                <option>Villa de Allende</option>
+                <option>797438</option>
+                <option>Villa del Carbón</option>
+                <option>1282599258 19.6148648203569</option>
+                <option>Villa Guerrero</option>
+                <option>00033 18.8635244204399</option>
+                <option>Villa Victoria</option>
+                <option>19.30122206</option>
+                <option>Xonacatlán</option>
+                <option>Zacazonapan</option>
+                <option>Zacualpan</option>
+                <option>95487</option>
+                <option>Cuautitlán Izcalli</option>
+                <option>19.69070722</option>
+                <option>San José del Rincón</option>
+                <option>58712626401 19.5228131059178</option>
+                <option>Acolman</option>
+                <option>-98.9368576495155 19.6754805502997</option>
+                <option>Amanalco</option>
+                <option>6979825 19.2985432803913</option>
+                <option>Atenco</option>
+                <option>Atizapán de Zaragoza</option>
+                <option>56098303595</option>
+                <option>Jilotepec</option>
+                <option>881989</option>
+                <option>Nextlalpan</option>
+                <option>Axapusco</option>
+                <option>8.6390175986488 19.6731170502402</option>
+                <option>139986900278 19.6602883497203</option>
+                <option>Otzoloapan</option>
+                <option>Otzolotepec</option>
+                <option>03 19.4102730211156</option>
+                <option>San Mateo Atenco</option>
+                <option>Tejupilco</option>
+                <option>99</option>
+                <option>Temascalapa</option>
+                <option>Temascaltepec</option>
+                <option>9.97359E+11</option>
+                <option>Tenango del Aire</option>
+                <option>Tenango del Valle</option>
+                <option>19.03213934</option>
+                <option>Teoloyucan</option>
+                <option>Teotihuacán</option>
+                <option>-98.9331587503077 19.7039884301668</option>
+                <option>Tepetlaoxtoc</option>
+                <option>54</option>
+                <option>Tepotzotlán</option>
+                <option>19.65155385</option>
+                <option>Texcaltitlán</option>
+                <option>Texcalyacac</option>
+                <option>Tezoyuca</option>
+                <option>Almoloya del Río</option>
+                <option>Juchitepec</option>
+                <option>San Felipe del Progreso</option>
+                <option>0.55839192</option>
+                <option>Amecameca</option>
+                <option>792289199 19.0765371998052</option>
+                <option>Valle de Chalco Solidaridad</option>
+                <option>Azcapotzalco</option>
+                <option>Coyoacán</option>
+                <option>Cuajimalpa de Morelos</option>
+                <option>96994514</option>
+                <option>Gustavo A. Madero</option>
+                <option>57979136 19.52887352014117</option>
+                <option>Iztacalco</option>
+                <option>Iztapalapa</option>
+                <option>5.85484E+13</option>
+                <option>La Magdalena Contreras</option>
+                <option>64260019115</option>
+                <option>Milpa Alta</option>
+                <option>Álvaro Obregón</option>
+                <option>59544974045</option>
+                <option>Tláhuac</option>
+                <option>28974098 19.286702319617614</option>
+                <option>Tlalpan</option>
+                <option>5893413 19.226649910546435</option>
+                <option>Xochimilco</option>
+                <option>6741073465</option>
+                <option>Benito Juárez</option>
+                <option>Cuauhtémoc</option>
+                <option>Miguel Hidalgo</option>
+                <option>2.6751E+11</option>
+                <option>Venustiano Carranza</option>
+
+            </optgroup>
           </select>
-          {error && <p className="error-message">{error}</p>}
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? "Cargando..." : "Calcular"}
-          </button>
+          {formData.placeOfInterest.length > 0 && (
+          <div className="selected-places">
+            <h3>Lugares seleccionados:</h3>
+            <ul>
+              {formData.placeOfInterest.map((place, index) => (
+                <li key={index}>
+                  {place}
+                  <button type="button" onClick={() => handleRemovePlace(place)}>❌</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <button type="submit" className="submit-button" disabled={loading}>
+          {loading ? "Cargando..." : "Calcular"}
+        </button>
+        {error && <p className="error-message">{error}</p>}
         </form>
       </div>
     </div>

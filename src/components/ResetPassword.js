@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useParams, useHistory } from 'react-router-dom';
 import '../styles/Login.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 // Función para validar la contraseña
 const validatePassword = (password) => {
@@ -17,6 +19,7 @@ const validatePassword = (password) => {
 function ResetPassword() {
   const { token } = useParams();
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordCriteria, setPasswordCriteria] = useState({
     length: false,
     uppercase: false,
@@ -27,6 +30,9 @@ function ResetPassword() {
   const [message, setMessage] = useState('');
   const history = useHistory();
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
   const handlePasswordChange = (e) => {
     const newPassword = e.target.value;
     setPassword(newPassword);
@@ -58,13 +64,22 @@ function ResetPassword() {
         <h2>Restablecer Contraseña</h2>
         {message && <p>{message}</p>}
         <form onSubmit={handleSubmit}>
-          <input
-            type="password"
-            name="password"
-            placeholder="Introduce una nueva contraseña"
-            value={password}
-            onChange={handlePasswordChange}
-          />
+          <div className='password-input-container'>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              placeholder="Introduce una nueva contraseña"
+              value={password}
+              onChange={handlePasswordChange}
+            />
+            <button
+                type="button"
+                className="toggle-password"
+                onClick={togglePasswordVisibility}
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </button>
+            </div>
           <div className="password-indicators">
             <p style={{ color: passwordCriteria.length ? 'green' : 'red' }}>
               - Mínimo 8 caracteres

@@ -1,29 +1,21 @@
-# Usa una imagen base de Node para construir el proyecto
-FROM node:16 AS build
+# Usa una imagen oficial de Node.js como base
+FROM node:16
 
-# Establece el directorio de trabajo en el contenedor
+# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos necesarios para la instalación
+# Copia los archivos necesarios para instalar dependencias
 COPY package*.json ./
 
 # Instala las dependencias del proyecto
 RUN npm install
 
-# Copia el resto de los archivos del proyecto
+# Copia todo el código de la aplicación al contenedor
 COPY . .
 
-# Construye la aplicación para producción
-RUN npm run build
+# Expone el puerto en el que el servidor de desarrollo ejecutará la aplicación
+EXPOSE 3000
 
-# Usa una imagen más ligera para servir la aplicación
-FROM nginx:alpine
+# Comando para ejecutar la aplicación en modo desarrollo
+CMD ["npm", "start"]
 
-# Copia los archivos estáticos generados al servidor NGINX
-COPY --from=build /app/build /usr/share/nginx/html
-
-# Expone el puerto 80 para servir la aplicación
-EXPOSE 80
-
-# Comando por defecto para iniciar NGINX
-CMD ["nginx", "-g", "daemon off;"]

@@ -88,3 +88,99 @@ body {
   margin-left: auto;
   margin-right: auto;
 }
+
+/* Estilo para los lugares seleccionados */
+.selected-places {
+  margin-top: 20px;
+}
+
+.selected-places ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.selected-places li {
+  display: inline-block;
+  background-color: white;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.selected-places button {
+  background-color: transparent;
+  border: none;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.selected-places button:hover {
+  color: darkred;
+}
+
+/* Botón de submit */
+.submit-button {
+  background-color: green;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submit-button:disabled {
+  background-color: gray;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+/* Estilos para el contenedor del interruptor */
+.react-switch-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* Asegura que ocupe todo el ancho del contenedor */
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Estilos para la etiqueta del interruptor */
+.react-switch-container label {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* Estilos para el texto informativo */
+.react-switch-container p {
+  font-size: 16px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* El siguiente código es específico para el estilo de los interruptores de react-switch */
+.react-switch-handle {
+  background-color: white !important; /* Asegura que el círculo del interruptor tenga el color correcto */
+  border-radius: 50% !important;
+  box-shadow: none !important;
+}
+
+.react-switch-slider {
+  border-radius: 50px !important;
+}
+
+/* Estilo para la etiqueta de Hora Inicial */
+label[for="startPoint"], label[for="endPoint"], label[for="placeOfInterest"]  {
+  color: black;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+

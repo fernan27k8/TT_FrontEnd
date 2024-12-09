@@ -4,36 +4,8 @@ import KeplerGl from "kepler.gl"
 import keplerGlReducer from "kepler.gl/reducers";
 import { taskMiddleware } from "react-palm/tasks";
 import { createStore, combineReducers, applyMiddleware } from "redux";
-import { addDataToMap } from "kepler.gl/actions";
+import { addLayer,addDataToMap } from "kepler.gl/actions";
 import { Provider, useDispatch } from "react-redux";
-const lineStringConfig = {
-  visState: {
-    layers: [
-      {
-        id: 'line-layer',
-        type: 'line',
-        config: {
-          dataId: 'myData',
-          label: 'Lineas de ejemplo',
-          columns: {
-            geojson: '_geojson',
-          },
-          color: [0, 128, 255],
-          thickness: 3,
-          opacity: 0.8,
-          highlightColor: [255, 255, 0],
-        },
-        visualChannels: {
-          colorField: null,
-          colorScale: 'quantile',
-          sizeField: null,
-          sizeScale: 'linear',
-        },
-      },
-    ],
-  },
-};
-
 const reducers = combineReducers({
   keplerGl: keplerGlReducer,
 });
@@ -50,13 +22,6 @@ export default function KeplerMap({geojson}) {
 
 function Map({geojson}) {
   const dispatch = useDispatch();
-  /*
-  const { data } = useSwr("geojson", async () => {
-    const response = await fetch("/data/3dias_trayectorias_varios_lugares.geojson");
-    const data = await response.json();
-    return data;
-  });*/
-
   useEffect(() => {
     if (geojson) {
       console.log("Datos listos para agregar a Kepler:", geojson);
@@ -74,7 +39,24 @@ function Map({geojson}) {
             centerMap: true,
             readOnly: false,
           },
-          config: lineStringConfig,
+        })
+      );
+
+      dispatch(
+        addLayer({
+          id: "line-layer",
+          type: "line",
+          config: {
+            dataId: "myData",
+            label: "Lineas de ejemplo",
+            columns: {
+              geojson: "coordinates",
+            },
+            visConfig: {
+              color: [255, 0, 0],
+              thickness: 3,
+            },
+          },
         })
       );
     }
@@ -89,7 +71,6 @@ function Map({geojson}) {
     />
   );
 }
-
 function geoJSONToKeplerFormat(geojson) {
   const fields = [
     { name: "device_id", format: "", type: "string" },
@@ -99,18 +80,12 @@ function geoJSONToKeplerFormat(geojson) {
 
   const rows = geojson.features.map((feature) => {
     const { device_id, timestamps } = feature.properties;
-    const coordinates = {
-      type: feature.geometry.type,
-      coordinates: feature.geometry.coordinates,
-    };
-
-    return [device_id, timestamps, coordinates];
+    const coordinates = feature.geometry; // GeoJSON espera todo el objeto geometry
+    return [device_id, JSON.stringify(timestamps), coordinates];
   });
 
   return { fields, rows };
 }
-
-
 
 
 
