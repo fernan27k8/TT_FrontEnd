@@ -1,28 +1,51 @@
 import React, { useState } from 'react';
-import '../styles/Login.css'; 
-import { useNavigate } from 'react-router-dom';
+import '../styles/Login.css';
+import { useHistory } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios'; // Importar Axios
+import axios from 'axios';
+
+const validatePassword = (password) => {
+  return {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /\d/.test(password),
+    specialChar: /[@$!%*?&]/.test(password),
+  };
+};
 
 function Register() {
-  const navigate = useNavigate();
+  const history = useHistory();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+  });
+  const [passwordCriteria, setPasswordCriteria] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    specialChar: false,
   });
   const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState(''); // Para mostrar mensaje de éxito
+  const [successMessage, setSuccessMessage] = useState('');
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value,
     });
+
+    if (name === 'password') {
+      setPasswordCriteria(validatePassword(value));
+    }
   };
 
   const togglePasswordVisibility = () => {
@@ -34,7 +57,7 @@ function Register() {
   };
 
   const handleLoginClick = () => {
-    navigate('/');
+    history.push('/');
   };
 
   const validateEmail = (email) => {
@@ -46,29 +69,24 @@ function Register() {
     e.preventDefault();
     const { fullName, email, password, confirmPassword } = formData;
 
-    // Limpiar mensaje de éxito y error antes de la validación
     setError('');
     setSuccessMessage('');
 
-    // Validar que todos los campos estén completos
     if (!fullName || !email || !password || !confirmPassword) {
       setError('Todos los campos son obligatorios');
       return;
     }
 
-    // Validar formato de correo electrónico
     if (!validateEmail(email)) {
       setError('El correo no es válido');
       return;
     }
 
-    // Validar que las contraseñas coincidan
     if (password !== confirmPassword) {
       setError('Las contraseñas no coinciden');
       return;
     }
 
-    console.log("Datos enviados:", { fullName, email, password, confirmPassword });
     try {
       const response = await axios.post('http://localhost:5000/api/auth/register', {
         fullName,
@@ -78,13 +96,11 @@ function Register() {
       });
 
       if (response.status === 201) {
-        console.log('Registro exitoso', response.data);
-        setSuccessMessage('Registro exitoso. Redirigiendo a la página de inicio de sesión...');
-        setTimeout(() => navigate('/'), 2000); // Redirigir después de 2 segundos
+        setSuccessMessage('Registro exitoso. Redirigiendo...');
+        setTimeout(() => history.push('/verify'), 2000);
       }
     } catch (error) {
       if (error.response) {
-        // Mostrar mensaje de error específico del backend
         setError(error.response.data.message || 'Error en el registro');
       } else {
         setError('Error en el registro');
@@ -109,7 +125,7 @@ function Register() {
           <input
             type="email"
             name="email"
-            placeholder="Correo Electrónico (ej. ejemplo@correo.com)"
+            placeholder="Correo Electrónico"
             value={formData.email}
             onChange={handleChange}
           />
@@ -128,6 +144,23 @@ function Register() {
             >
               <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
             </button>
+          </div>
+          <div className="password-indicators">
+            <p style={{ color: passwordCriteria.length ? 'green' : 'red' }}>
+              - Mínimo 8 caracteres
+            </p>
+            <p style={{ color: passwordCriteria.uppercase ? 'green' : 'red' }}>
+              - Al menos una letra mayúscula
+            </p>
+            <p style={{ color: passwordCriteria.lowercase ? 'green' : 'red' }}>
+              - Al menos una letra minúscula
+            </p>
+            <p style={{ color: passwordCriteria.number ? 'green' : 'red' }}>
+              - Al menos un número
+            </p>
+            <p style={{ color: passwordCriteria.specialChar ? 'green' : 'red' }}>
+              - Al menos un carácter especial (@$!%*?&)
+            </p>
           </div>
           <div className="password-input-container">
             <input
@@ -148,7 +181,9 @@ function Register() {
           <button className="login-button" type="submit">Registrarse</button>
         </form>
         <div className="button-group">
-          <button className="link-button" onClick={handleLoginClick}>Iniciar Sesión</button>
+          <button className="link-button" onClick={handleLoginClick}>
+            Iniciar Sesión
+          </button>
         </div>
       </div>
     </div>
@@ -156,5 +191,6 @@ function Register() {
 }
 
 export default Register;
+
 
 

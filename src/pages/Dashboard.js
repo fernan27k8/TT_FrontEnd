@@ -1,12 +1,24 @@
-import React from 'react';
+import React from "react";
+import KeplerMap from "../components/KeplerMap";
+import { useLocation } from "react-router-dom"
 
-function Dashboard() {
+const Dashboard = () => {
+  const location = useLocation();
+  const geojson = location.state?.geojson;
   return (
     <div>
-      <h1>Bienvenido al Dashboard</h1>
-      <p>Esta es una página temporal después de iniciar sesión.</p>
+      {geojson ? (
+        <KeplerMap geojson={geojson} />
+      ) : (
+        <p>No se proporcionaron datos GeoJSON.</p>
+      )}
     </div>
   );
-}
+};
 
 export default Dashboard;
+
+
+
+
+
